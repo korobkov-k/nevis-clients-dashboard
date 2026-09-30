@@ -8,11 +8,13 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { memo } from 'react';
 import type { ChartModel, ChartMonthDatum } from '../../domain/chartModel';
 import { getChartColor } from '../../domain/chartPalette';
+import { formatCount } from '../../domain/formatCount';
+import { CHART_HEIGHT_PX } from './chartLayout';
 import { ChartTooltip } from './ChartTooltip';
 
-export const CHART_HEIGHT_PX = 358;
 const AXIS_TICK = { fill: 'var(--color-content-secondary)', fontSize: 12 };
 
 interface StackedBarChartProps {
@@ -22,8 +24,15 @@ interface StackedBarChartProps {
   onSelectSeries: (nodeId: string) => void;
 }
 
-/** Recharts rendering of a chart model; each segment reports its series node ID on click. */
-export function StackedBarChart({ model, animate, onSelectSeries }: StackedBarChartProps) {
+/**
+ * Recharts rendering of a chart model; each segment reports its series node ID on click.
+ * Memoised so focus and expansion changes elsewhere never re-run Recharts' stacking.
+ */
+export const StackedBarChart = memo(function StackedBarChart({
+  model,
+  animate,
+  onSelectSeries,
+}: StackedBarChartProps) {
   return (
     <ResponsiveContainer width="100%" height={CHART_HEIGHT_PX}>
       <BarChart
@@ -31,6 +40,8 @@ export function StackedBarChart({ model, animate, onSelectSeries }: StackedBarCh
         margin={{ top: 10, right: 0, bottom: 0, left: 0 }}
         barCategoryGap="10.75%"
         accessibilityLayer
+        title={`Monthly clients chart: ${model.path.map((node) => node.name).join(' / ')}`}
+        desc="Use the left and right arrow keys to read each month's values."
       >
         <CartesianGrid
           vertical={false}
@@ -59,6 +70,7 @@ export function StackedBarChart({ model, animate, onSelectSeries }: StackedBarCh
           tickMargin={12}
           width={38}
           tick={AXIS_TICK}
+          tickFormatter={formatCount}
         />
         <Tooltip
           cursor={{ fill: 'var(--color-surface-hover)' }}
@@ -87,4 +99,4 @@ export function StackedBarChart({ model, animate, onSelectSeries }: StackedBarCh
       </BarChart>
     </ResponsiveContainer>
   );
-}
+});

@@ -1,8 +1,17 @@
-import { useId, useLayoutEffect, useRef, type MouseEvent } from 'react';
+import {
+  Fragment,
+  memo,
+  useCallback,
+  useId,
+  useLayoutEffect,
+  useRef,
+  type MouseEvent,
+} from 'react';
 import { Panel } from '../../components/Panel';
 import type { ChartModel } from '../../domain/chartModel';
 import { PERIOD_LABEL } from '../../domain/months';
 import { ChartLegend } from './ChartLegend';
+import { CHART_HEIGHT_PX } from './chartLayout';
 import { StackedBarChart } from './StackedBarChart';
 
 export interface ChartPanelProps {
@@ -24,7 +33,7 @@ function describe(model: ChartModel): string {
 }
 
 /** Chart surface with its scope context (path, grouping), overview reset and legend. */
-export function ChartPanel({
+export const ChartPanel = memo(function ChartPanel({
   model,
   hasSelection,
   animate = true,
@@ -45,9 +54,17 @@ export function ChartPanel({
   }, [model]);
 
   const handleLegendSelect = (nodeId: string, event: MouseEvent<HTMLButtonElement>) => {
-    activatedLegendButton.current = event.currentTarget;
+    // `detail` is 0 for keyboard (Enter/Space) activation of a button.
+    activatedLegendButton.current = event.detail === 0 ? event.currentTarget : null;
     onSelectNode(nodeId, 'chart-legend');
   };
+
+  const handleSelectSeries = useCallback(
+    (nodeId: string) => {
+      onSelectNode(nodeId, 'chart-segment');
+    },
+    [onSelectNode],
+  );
 
   return (
     <Panel aria-labelledby={headingId} className="flex flex-col gap-4 px-4 pt-4 pb-4">
@@ -60,10 +77,15 @@ export function ChartPanel({
             className="text-body font-medium break-words"
           >
             {model.path.map((node, index) => (
-              <span key={node.id}>
-                {index > 0 && <span className="px-1 text-content-secondary">/</span>}
+              <Fragment key={node.id}>
+                {index > 0 && (
+                  <>
+                    {' '}
+                    <span className="text-content-secondary">/</span>{' '}
+                  </>
+                )}
                 {node.name}
-              </span>
+              </Fragment>
             ))}
           </h2>
           <p className="text-footnote text-content-secondary">{model.groupingLabel}</p>
@@ -84,22 +106,25 @@ export function ChartPanel({
         <p id={descriptionId} className="sr-only">
           {describe(model)}
         </p>
-        <div className="text-footnote tabular-nums-lining">
-          <StackedBarChart
-            model={model}
-            animate={animate}
-            onSelectSeries={(nodeId) => {
-              onSelectNode(nodeId, 'chart-segment');
-            }}
-          />
-        </div>
+        {model.series.length === 0 ? (
+          <div
+            className="grid place-items-center text-content-secondary"
+            style={{ height: CHART_HEIGHT_PX }}
+          >
+            No data to display
+          </div>
+        ) : (
+          <div className="text-footnote tabular-nums-lining">
+            <StackedBarChart model={model} animate={animate} onSelectSeries={handleSelectSeries} />
+          </div>
+        )}
       </figure>
 
-      {model.kind === 'breakdown' ? (
+      {model.kind === 'breakdown' && model.series.length > 0 ? (
         <ChartLegend series={model.series} onSelect={handleLegendSelect} />
       ) : (
         <div aria-hidden="true" className="h-6" />
       )}
     </Panel>
   );
-}
+});
