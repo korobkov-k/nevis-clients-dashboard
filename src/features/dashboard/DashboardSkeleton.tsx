@@ -1,6 +1,7 @@
 import { Panel } from '../../components/Panel';
+import { usePrefersReducedMotion } from '../../components/usePrefersReducedMotion';
 import { MONTHS } from '../../domain/months';
-import { CHART_HEIGHT_PX } from '../chart/StackedBarChart';
+import { CHART_HEIGHT_PX } from '../chart/chartLayout';
 
 /** Fixed, non-data placeholder heights (fraction of the plot) for the twelve month positions. */
 const BAR_HEIGHTS = [0.62, 0.66, 0.7, 0.74, 0.78, 0.82, 0.86, 0.64, 0.64, 0.64, 0.64, 0.9];
@@ -14,14 +15,15 @@ export interface DashboardSkeletonProps {
 
 /**
  * Loading state with the dashboard's geometry: chart axes, twelve month positions and
- * neutral bars, plus the table header and four initial rows. Announced once as a whole.
+ * neutral bars, plus the table header and four initial rows. Purely decorative: the page's
+ * status region announces loading.
  */
-export function DashboardSkeleton({ shimmer = false }: DashboardSkeletonProps) {
+export function DashboardSkeleton({ shimmer: shimmerRequested = false }: DashboardSkeletonProps) {
+  const reducedMotion = usePrefersReducedMotion();
+  const shimmer = shimmerRequested && !reducedMotion;
   const block = 'rounded-[4px] bg-skeleton';
   return (
-    <div role="status" className="contents">
-      <span className="sr-only">Loading client data…</span>
-
+    <div data-testid="dashboard-skeleton" className="contents">
       <Panel aria-hidden="true" className="flex flex-col gap-4 px-4 pt-4 pb-4">
         <div className="flex flex-col gap-1.5 py-0.5">
           <div className={`${block} h-4 w-40`} />

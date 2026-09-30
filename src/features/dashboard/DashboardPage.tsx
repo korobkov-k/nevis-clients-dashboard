@@ -1,4 +1,4 @@
-import { useEffect, useRef, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { useClientsQuery } from '../../api/useClientsQuery';
 import { usePrefersReducedMotion } from '../../components/usePrefersReducedMotion';
 import { Dashboard } from './Dashboard';
@@ -16,6 +16,9 @@ export function DashboardPage({ loadingShimmer = false }: DashboardPageProps) {
   const reducedMotion = usePrefersReducedMotion();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const restoreFocusAfterRetry = useRef(false);
+  // A refetch without data resets the query to pending, so the retry attempt is tracked here
+  // to keep the error screen (and its focused Retry button) in place until the outcome.
+  const [retrying, setRetrying] = useState(false);
 
   // The focused Retry button disappears on success; move focus to the page heading.
   useEffect(() => {
@@ -27,20 +30,26 @@ export function DashboardPage({ loadingShimmer = false }: DashboardPageProps) {
 
   const handleRetry = (event: MouseEvent<HTMLButtonElement>) => {
     restoreFocusAfterRetry.current = document.activeElement === event.currentTarget;
-    void query.refetch();
+    setRetrying(true);
+    void query.refetch().finally(() => {
+      setRetrying(false);
+    });
   };
 
+  const showError = query.isError || (retrying && !query.isSuccess);
   const announcement = query.isSuccess
     ? 'Client data loaded.'
-    : query.isError && query.isFetching
-      ? 'Retrying…'
-      : '';
+    : showError
+      ? retrying
+        ? 'Retrying…'
+        : ''
+      : 'Loading client data…';
 
   return (
     <>
-      {query.isError ? (
+      {showError ? (
         <LoadError
-          retrying={query.isFetching}
+          retrying={retrying}
           failureCount={query.errorUpdateCount}
           onRetry={handleRetry}
         />
