@@ -1,4 +1,4 @@
-import { memo, type MouseEvent } from 'react';
+import { memo, useId, type MouseEvent } from 'react';
 import type { TreeNode } from '../../domain/clientTree';
 import { formatCount } from '../../domain/formatCount';
 import { MONTHS } from '../../domain/months';
@@ -24,6 +24,7 @@ export const TreegridRow = memo(function TreegridRow({
   onRowClick,
   onChevronClick,
 }: TreegridRowProps) {
+  const nameId = useId();
   const handleChevronClick = (event: MouseEvent) => {
     event.stopPropagation();
     onChevronClick(node.id);
@@ -37,6 +38,7 @@ export const TreegridRow = memo(function TreegridRow({
       aria-setsize={node.siblingCount}
       aria-expanded={expanded}
       aria-selected={selected}
+      aria-labelledby={nameId}
       tabIndex={tabIndexFor(tabStopColumn === null)}
       data-row-id={node.id}
       className={`treegrid-row group/row h-14 cursor-pointer ${
@@ -49,6 +51,7 @@ export const TreegridRow = memo(function TreegridRow({
       }}
     >
       <th
+        id={nameId}
         role="rowheader"
         scope="row"
         tabIndex={tabIndexFor(tabStopColumn === 0)}

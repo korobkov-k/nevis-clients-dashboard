@@ -173,6 +173,17 @@ export function ClientsTreegrid({
             </tr>
           </thead>
           <tbody>
+            {rows.length === 0 && (
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  colSpan={COLUMN_COUNT}
+                  className="h-14 px-4 text-content-secondary"
+                >
+                  No clients to show
+                </td>
+              </tr>
+            )}
             {rows.map((node) => (
               <TreegridRow
                 key={node.id}
