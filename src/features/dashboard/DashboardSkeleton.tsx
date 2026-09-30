@@ -1,10 +1,10 @@
 import { Panel } from '../../components/Panel';
 import { usePrefersReducedMotion } from '../../components/usePrefersReducedMotion';
 import { MONTHS } from '../../domain/months';
-import { CHART_HEIGHT_PX } from '../chart/chartLayout';
+import { CHART_HEIGHT_PX, PLOT_TOP_PX, X_AXIS_HEIGHT_PX } from '../chart/chartLayout';
 
-/** Fixed, non-data placeholder heights (fraction of the plot) for the twelve month positions. */
-const BAR_HEIGHTS = [0.62, 0.66, 0.7, 0.74, 0.78, 0.82, 0.86, 0.64, 0.64, 0.64, 0.64, 0.9];
+/** Fixed, deliberately data-neutral placeholder heights (fraction of the plot). */
+const BAR_HEIGHTS = [0.55, 0.7, 0.55, 0.7, 0.55, 0.7, 0.55, 0.7, 0.55, 0.7, 0.55, 0.7];
 const GRID_LINES = 5;
 const SKELETON_ROWS = 4;
 
@@ -25,17 +25,23 @@ export function DashboardSkeleton({ shimmer: shimmerRequested = false }: Dashboa
   return (
     <div data-testid="dashboard-skeleton" className="contents">
       <Panel aria-hidden="true" className="flex flex-col gap-4 px-4 pt-4 pb-4">
-        <div className="flex flex-col gap-1.5 py-0.5">
+        <div className="flex h-9 flex-col justify-center gap-1.5">
           <div className={`${block} h-4 w-40`} />
           <div className={`${block} h-3 w-24`} />
         </div>
         <div className="relative pl-[38px]" style={{ height: CHART_HEIGHT_PX }}>
-          <div className="absolute inset-x-0 top-[10px] bottom-[28px] left-[38px] flex flex-col justify-between">
+          <div
+            className="absolute inset-x-0 left-[38px] flex flex-col justify-between"
+            style={{ top: PLOT_TOP_PX, bottom: X_AXIS_HEIGHT_PX }}
+          >
             {Array.from({ length: GRID_LINES }, (_, index) => (
               <div key={index} className="border-t border-dotted border-outline-dotted" />
             ))}
           </div>
-          <div className="absolute top-[10px] right-0 bottom-[28px] left-[38px] flex items-end">
+          <div
+            className="absolute right-0 left-[38px] flex items-end"
+            style={{ top: PLOT_TOP_PX, bottom: X_AXIS_HEIGHT_PX }}
+          >
             {BAR_HEIGHTS.map((height, index) => (
               <div key={index} className="flex h-full flex-1 items-end justify-center">
                 <div
@@ -57,11 +63,11 @@ export function DashboardSkeleton({ shimmer: shimmerRequested = false }: Dashboa
             ))}
           </div>
         </div>
-        <div className="h-6" />
+        <div className="h-4" />
       </Panel>
 
       <Panel aria-hidden="true" className="overflow-hidden">
-        <div className="overflow-hidden [--name-column:min(264px,45vw)]">
+        <div className="overflow-hidden [--name-column:min(264px,50vw)]">
           <div className="flex h-14 min-w-max items-end border-b border-outline-solid pr-6 pb-4 pl-4">
             <div className="w-[var(--name-column)] shrink-0" />
             {MONTHS.map((month) => (

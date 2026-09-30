@@ -59,7 +59,7 @@ export const LoadingWithShimmer: Story = {
     await expect(getComputedStyle(bar as HTMLElement).animationName).toBe('shimmer-y');
     await expect(getComputedStyle(row as HTMLElement).animationName).toBe('shimmer-x');
     // Shimmer never animates the placeholder geometry.
-    await expect((bar as HTMLElement).style.height).toBe('62%');
+    await expect((bar as HTMLElement).style.height).toBe('55%');
   },
 };
 
