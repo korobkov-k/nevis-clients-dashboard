@@ -24,6 +24,23 @@ export default tseslint.config(
     extends: [reactHooks.configs.flat['recommended-latest']],
   },
   {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/test/**', 'src/**/*.test.ts', 'src/**/*.stories.tsx'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/server/**'],
+              message: 'The production client loads data through the API, never server fixtures.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['server/**/*.ts', 'e2e/**/*.ts', '*.config.{ts,js}'],
     languageOptions: { globals: globals.node },
   },

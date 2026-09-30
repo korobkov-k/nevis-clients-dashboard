@@ -8,5 +8,5 @@
     "outDir": "dist"
   },
   "include": ["server", "shared"],
-  "exclude": ["server/**/*.test.ts", "server/dev.ts"]
+  "exclude": ["**/*.test.ts", "server/dev.ts"]
 }

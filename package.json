@@ -22,7 +22,7 @@
     "test:stories": "vitest run --project storybook",
     "test:e2e": "playwright test --project=smoke",
     "test:visual": "playwright test --project=visual",
-    "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test"
+    "check": "tsc -b && eslint . && prettier --check . && vitest run"
   },
   "dependencies": {
     "@fastify/static": "10.1.5",
