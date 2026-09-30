@@ -37,10 +37,10 @@ export function DashboardSkeleton({ shimmer: shimmerRequested = false }: Dashboa
           </div>
           <div className="absolute top-[10px] right-0 bottom-[28px] left-[38px] flex items-end">
             {BAR_HEIGHTS.map((height, index) => (
-              <div key={index} className="flex h-full flex-1 items-end justify-center px-[10.75%]">
+              <div key={index} className="flex h-full flex-1 items-end justify-center">
                 <div
                   data-testid="skeleton-bar"
-                  className={`${block} w-full ${shimmer ? 'shimmer-y' : ''}`}
+                  className={`${block} w-[78.5%] ${shimmer ? 'shimmer-y' : ''}`}
                   style={{ height: `${height * 100}%` }}
                 />
               </div>

@@ -147,7 +147,7 @@ export function ClientsTreegrid({
           role="treegrid"
           aria-label={label}
           aria-describedby={helpId}
-          className="w-full border-collapse text-body"
+          className="w-full border-separate border-spacing-0 text-body"
           onFocus={handleFocus}
           onKeyDown={handleKeyDown}
         >
