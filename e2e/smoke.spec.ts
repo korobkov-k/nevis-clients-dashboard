@@ -59,3 +59,31 @@ test('drills down from the chart and keeps context while the treegrid changes', 
     await expect(row(page, /^Branch 1/)).toHaveAttribute('aria-expanded', 'false');
   });
 });
+
+test.describe('touch', () => {
+  test.use({ hasTouch: true });
+
+  test('tapping a segment selects it directly, without a tooltip-first tap', async ({ page }) => {
+    await page.goto('/');
+    const branch3Segments = page.locator('.recharts-bar-rectangles').nth(2);
+    await branch3Segments.locator('.recharts-bar-rectangle path').nth(6).tap();
+    await expect(chartHeading(page)).toHaveText('Company / Branch 3');
+    await expect(row(page, /^Branch 3/)).toHaveAttribute('aria-selected', 'true');
+  });
+});
+
+test.describe('narrow viewport', () => {
+  test.use({ viewport: { width: 375, height: 812 } });
+
+  test('row focus keeps the table scrolled to the visible months', async ({ page }) => {
+    await page.goto('/');
+    const scroller = page.locator('div:has(> table[role="treegrid"])');
+    await scroller.evaluate((element) => {
+      element.scrollLeft = 600;
+    });
+    await row(page, /^Branch 2/).click();
+    await page.keyboard.press('ArrowDown');
+    await expect(row(page, /^Branch 3/)).toBeFocused();
+    expect(await scroller.evaluate((element) => element.scrollLeft)).toBe(600);
+  });
+});

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -5,6 +6,14 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { CLIENTS_ENDPOINT, parseClientsResponse } from '../shared/clientsContract.js';
 import { buildApp } from './app.js';
 import clients from './data/clients.json' with { type: 'json' };
+
+describe('source fixture', () => {
+  it('still matches the payload transcribed from the brief', () => {
+    // Guards against accidental edits: update only if the source PDF itself changes.
+    const digest = createHash('sha256').update(JSON.stringify(clients)).digest('hex');
+    expect(digest).toBe('4fb01d77e67f245c6e67ba03ccfd64ce996ed279e803b66284272a2bfedc9661');
+  });
+});
 
 describe('GET /api/clients', () => {
   it('returns the unchanged source tree without an envelope', async () => {
