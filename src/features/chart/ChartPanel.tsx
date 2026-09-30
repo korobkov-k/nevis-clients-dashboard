@@ -50,12 +50,12 @@ export const ChartPanel = memo(function ChartPanel({
   useLayoutEffect(() => {
     const button = activatedLegendButton.current;
     activatedLegendButton.current = null;
-    if (button !== null && !button.isConnected) headingRef.current?.focus();
+    const focusLost = document.activeElement === null || document.activeElement === document.body;
+    if (button !== null && !button.isConnected && focusLost) headingRef.current?.focus();
   }, [model]);
 
   const handleLegendSelect = (nodeId: string, event: MouseEvent<HTMLButtonElement>) => {
-    // `detail` is 0 for keyboard (Enter/Space) activation of a button.
-    activatedLegendButton.current = event.detail === 0 ? event.currentTarget : null;
+    activatedLegendButton.current = event.currentTarget;
     onSelectNode(nodeId, 'chart-legend');
   };
 
@@ -123,7 +123,7 @@ export const ChartPanel = memo(function ChartPanel({
       {model.kind === 'breakdown' && model.series.length > 0 ? (
         <ChartLegend series={model.series} onSelect={handleLegendSelect} />
       ) : (
-        <div aria-hidden="true" className="h-6" />
+        <div aria-hidden="true" className="h-4" />
       )}
     </Panel>
   );

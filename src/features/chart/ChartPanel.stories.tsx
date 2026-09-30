@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, waitFor, within } from 'storybook/test';
-import { buildChartModel, type ChartModel } from '../../domain/chartModel';
+import { buildChartModel } from '../../domain/chartModel';
 import { buildClientTree } from '../../domain/clientTree';
 import { IDS, sourceClients } from '../../test/sourceTree';
 import { withPageBackground } from '../../test/storybook';
@@ -176,16 +176,20 @@ export const LeafScope: Story = {
   },
 };
 
-const zeroModel: ChartModel = (() => {
-  const model = scope(IDS.anna);
-  const months = model.months.map((month) => ({
-    ...month,
-    values: month.values.map(() => 0),
-    stackTotal: 0,
-    reportedTotal: 0,
-  }));
-  return { ...model, months, yAxis: { max: 1, ticks: [0, 1] } };
-})();
+const zeros = () => Array.from({ length: 12 }, () => 0);
+/** Synthetic all-zero tree (not source data) to prove the axis stays non-degenerate. */
+const zeroModel = buildChartModel(
+  buildClientTree({
+    id: 'zero-root',
+    name: 'Zero adviser',
+    values: zeros(),
+    branches: [
+      { id: 'zero-a', name: 'Channel A', values: zeros() },
+      { id: 'zero-b', name: 'Channel B', values: zeros() },
+    ],
+  }),
+  'zero-root',
+);
 
 export const AllZeroValues: Story = {
   args: { model: zeroModel, hasSelection: true },

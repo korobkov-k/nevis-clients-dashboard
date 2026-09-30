@@ -12,7 +12,7 @@ import { memo } from 'react';
 import type { ChartModel, ChartMonthDatum } from '../../domain/chartModel';
 import { getChartColor } from '../../domain/chartPalette';
 import { formatCount } from '../../domain/formatCount';
-import { CHART_HEIGHT_PX } from './chartLayout';
+import { CHART_HEIGHT_PX, PLOT_TOP_PX, X_AXIS_HEIGHT_PX } from './chartLayout';
 import { ChartTooltip } from './ChartTooltip';
 
 const AXIS_TICK = { fill: 'var(--color-content-secondary)', fontSize: 12 };
@@ -37,7 +37,7 @@ export const StackedBarChart = memo(function StackedBarChart({
     <ResponsiveContainer width="100%" height={CHART_HEIGHT_PX}>
       <BarChart
         data={model.months}
-        margin={{ top: 10, right: 0, bottom: 0, left: 0 }}
+        margin={{ top: PLOT_TOP_PX, right: 0, bottom: 0, left: 0 }}
         barCategoryGap="10.75%"
         accessibilityLayer
         title={`Monthly clients chart: ${model.path.map((node) => node.name).join(' / ')}`}
@@ -54,8 +54,8 @@ export const StackedBarChart = memo(function StackedBarChart({
           axisLine={false}
           tickLine={false}
           tickSize={0}
-          tickMargin={12}
-          height={28}
+          tickMargin={15}
+          height={X_AXIS_HEIGHT_PX}
           interval="preserveStartEnd"
           minTickGap={12}
           tick={AXIS_TICK}
