@@ -10,7 +10,8 @@ export function createTypeaheadBuffer(timeoutMs = TYPEAHEAD_TIMEOUT_MS) {
 
   return {
     append(character: string, timestamp: number): string {
-      query = timestamp - lastTimestamp > timeoutMs ? character : query + character;
+      const next = character.toLocaleLowerCase();
+      query = timestamp - lastTimestamp > timeoutMs ? next : query + next;
       lastTimestamp = timestamp;
       // Repeating one character cycles through matches instead of searching for "bbb".
       const first = query.charAt(0);

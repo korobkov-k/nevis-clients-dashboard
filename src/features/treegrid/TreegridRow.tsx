@@ -56,7 +56,7 @@ export const TreegridRow = memo(function TreegridRow({
         scope="row"
         tabIndex={tabIndexFor(tabStopColumn === 0)}
         data-column={0}
-        className="sticky left-0 z-10 border-b border-outline-solid group-last/row:border-b-0 w-[calc(var(--name-column)+16px)] max-w-[calc(var(--name-column)+16px)] bg-inherit py-0 pr-0 pl-4 text-left font-normal"
+        className="sticky left-0 z-10 border-b border-outline-solid group-last/row:border-b-0 w-[calc(var(--name-column)+16px)] max-w-[calc(var(--name-column)+16px)] min-w-[calc(var(--name-column)+16px)] max-sm:shadow-[inset_-1px_0_0_var(--color-outline-solid)] bg-inherit py-0 pr-2 pl-4 text-left font-normal"
       >
         <RowName node={node} expanded={expanded} onChevronClick={handleChevronClick} />
       </th>

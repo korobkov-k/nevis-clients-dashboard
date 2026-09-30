@@ -48,9 +48,15 @@ function focusElement(table: HTMLTableElement | null, location: FocusLocation) {
   const element = findElement(table, location);
   if (element === null) return;
   element.focus({ preventScroll: true });
-  // Rows scroll by their sticky name cell so horizontal position is kept.
+  const scroller = table.parentElement;
+  const scrollLeft = scroller?.scrollLeft ?? 0;
   const scrollTarget = location.column === null ? element.querySelector('th') : element;
   scrollTarget?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  // The sticky name cell is always visible but sits inside the scroll padding, so revealing
+  // it would needlessly scroll the months back to the start.
+  if (scroller && (location.column === null || location.column === 0)) {
+    scroller.scrollLeft = scrollLeft;
+  }
 }
 
 /**
@@ -140,7 +146,7 @@ export function ClientsTreegrid({
   };
 
   return (
-    <div className="group/treegrid [--name-column:min(264px,45vw)] [--tree-indent:16px] sm:[--tree-indent:28px]">
+    <div className="group/treegrid [--name-column:min(264px,50vw)] [--tree-indent:16px] sm:[--tree-indent:28px]">
       <div className="overflow-x-auto overscroll-x-contain scroll-pl-[calc(var(--name-column)+16px)]">
         <table
           ref={tableRef}
@@ -156,7 +162,7 @@ export function ClientsTreegrid({
               <th
                 role="columnheader"
                 scope="col"
-                className="sticky left-0 z-10 bg-background-secondary pl-4"
+                className="sticky left-0 z-10 w-[calc(var(--name-column)+16px)] min-w-[calc(var(--name-column)+16px)] bg-background-secondary pl-4 max-sm:shadow-[inset_-1px_0_0_var(--color-outline-solid)]"
               >
                 <span className="sr-only">Name</span>
               </th>
@@ -200,10 +206,12 @@ export function ClientsTreegrid({
       </div>
       <p
         id={helpId}
-        className="sr-only px-4 pt-2 pb-3 text-footnote text-content-secondary group-has-[table_:focus-visible]/treegrid:not-sr-only"
+        className="sr-only text-footnote text-content-secondary group-has-[table_:focus-visible]/treegrid:not-sr-only"
       >
-        Arrow keys move between rows and cells. Enter or Right/Left expands and collapses. Space
-        selects a row for the chart. Type a name to jump to it.
+        <span className="block px-4 pt-2 pb-3">
+          Arrow keys move between rows and cells. Enter or Right/Left expands and collapses. Space
+          selects a row for the chart. Type a name to jump to it.
+        </span>
       </p>
     </div>
   );
