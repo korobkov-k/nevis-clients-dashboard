@@ -1,0 +1,150 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter/opsz.css';
+
+/*
+ * Design tokens measured from the Figma file (see AGENTS.md for sources).
+ * Chart colours are consumed as CSS variables by Recharts, so they are always emitted.
+ */
+@theme static {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --color-background-primary: #f7f5ed;
+  --color-background-secondary: #ffffff;
+  --color-content-primary: #141413;
+  --color-content-secondary: rgb(20 20 19 / 0.6);
+  --color-outline-solid: rgb(20 20 19 / 0.08);
+  --color-outline-dotted: rgb(20 20 19 / 0.16);
+  --color-surface-hover: color-mix(in srgb, #141413 4%, #ffffff);
+  --color-surface-selected: color-mix(in srgb, #b29df8 16%, #ffffff);
+  --color-surface-selected-hover: color-mix(in srgb, #b29df8 22%, #ffffff);
+  --color-skeleton: rgb(20 20 19 / 0.06);
+  --color-focus: #275dad;
+
+  --color-chart-1: #b29df8;
+  --color-chart-2: #f4beb4;
+  --color-chart-3: #a75e6e;
+  --color-chart-4: #97d8c4;
+  --color-chart-5: #275dad;
+  --color-chart-6: #448502;
+  --color-chart-7: #c58a04;
+  --color-chart-8: #0d9296;
+  --color-chart-9: #8d52b7;
+  --color-chart-10: #f680c0;
+
+  --text-title: 35px;
+  --text-title--line-height: 1.25;
+  --text-body: 14px;
+  --text-body--line-height: 20px;
+  --text-footnote: 12px;
+  --text-footnote--line-height: 16px;
+
+  --radius-panel: 8px;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-background-primary);
+    color: var(--color-content-primary);
+    font-optical-sizing: auto;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply font-sans text-body;
+    margin: 0;
+    min-width: 0;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}
+
+@utility tabular-nums-lining {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/*
+ * Opt-in skeleton shimmer. A highlight band sweeps across the placeholder; bar heights never
+ * animate. Reduced-motion preferences always win.
+ */
+@keyframes shimmer-x {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+@keyframes shimmer-y {
+  from {
+    background-position: 0 150%;
+  }
+  to {
+    background-position: 0 -50%;
+  }
+}
+
+@utility shimmer-x {
+  background-image: linear-gradient(
+    90deg,
+    transparent 30%,
+    rgb(255 255 255 / 0.7) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-x 1.6s linear infinite;
+}
+
+@utility shimmer-y {
+  background-image: linear-gradient(
+    0deg,
+    transparent 30%,
+    rgb(255 255 255 / 0.7) 50%,
+    transparent 70%
+  );
+  background-size: 100% 200%;
+  animation: shimmer-y 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-x,
+  .shimmer-y {
+    animation: none;
+    background-image: none;
+  }
+}
+
+/* Treegrid focus: an inset ring drawn on cells so the sticky name column never hides it. */
+@layer components {
+  .treegrid-row:focus-visible {
+    outline: none;
+  }
+
+  .treegrid-row:focus-visible > * {
+    box-shadow:
+      inset 0 2px 0 var(--color-focus),
+      inset 0 -2px 0 var(--color-focus);
+  }
+
+  .treegrid-row:focus-visible > :first-child {
+    box-shadow:
+      inset 2px 0 0 var(--color-focus),
+      inset 0 2px 0 var(--color-focus),
+      inset 0 -2px 0 var(--color-focus);
+  }
+
+  .treegrid-row:focus-visible > :last-child {
+    box-shadow:
+      inset -2px 0 0 var(--color-focus),
+      inset 0 2px 0 var(--color-focus),
+      inset 0 -2px 0 var(--color-focus);
+  }
+
+  .treegrid-row > :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+  }
+}
