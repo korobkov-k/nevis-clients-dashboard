@@ -154,13 +154,19 @@
   }
 }
 
+/* The chart is pointer-only; Recharts' internal layers can take focus on click, so suppress
+ * their focus ring. Keyboard users work in the treegrid and legend. */
+.chart-interactive .recharts-surface :focus,
+.chart-interactive .recharts-surface:focus {
+  outline: none;
+}
+
 /* Bar segments select their node; empty plot space does nothing. */
-.chart-interactive .recharts-bar-rectangle,
-.chart-interactive .recharts-active-bar {
+.chart-interactive .recharts-bar-rectangle {
   cursor: pointer;
 }
 
-/* Hovered or keyboard-active month: brighter, more saturated version of any series colour. */
-.chart-segment-active {
+/* Hovered stack section: brighter, more saturated version of any series colour. */
+.chart-interactive .recharts-bar-rectangle:hover {
   filter: brightness(1.06) saturate(1.25);
 }

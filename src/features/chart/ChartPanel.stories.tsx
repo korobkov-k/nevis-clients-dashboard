@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, waitFor, within } from 'storybook/test';
 import { buildChartModel } from '../../domain/chartModel';
 import { buildClientTree } from '../../domain/clientTree';
+import { MONTHS } from '../../domain/months';
 import { IDS, sourceClients } from '../../test/sourceTree';
 import { withPageBackground } from '../../test/storybook';
 import { ChartPanel } from './ChartPanel';
@@ -25,25 +26,31 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Focuses the Recharts keyboard layer and moves the active month with the arrow keys. */
-async function openTooltipAt(
-  canvasElement: HTMLElement,
-  userEvent: { keyboard: (text: string) => Promise<void> },
-  monthIndex: number,
-) {
-  const surface = await waitFor(() => {
-    const element = canvasElement.querySelector<HTMLElement>('.recharts-wrapper [tabindex="0"]');
-    if (!element || !canvasElement.querySelector('.recharts-bar-rectangle')) {
-      throw new Error('Chart keyboard layer not ready');
-    }
+/** Hovers a month's first segment and returns the tooltip it opens. */
+async function openTooltipAt(canvasElement: HTMLElement, monthIndex: number) {
+  const segment = await waitFor(() => {
+    const element = canvasElement
+      .querySelectorAll('.recharts-bar-rectangles')[0]
+      ?.querySelectorAll('.recharts-bar-rectangle path')[monthIndex];
+    if (!element) throw new Error('Chart has not rendered');
     return element;
   });
-  surface.focus();
-  if (monthIndex > 0) await userEvent.keyboard('{ArrowRight}'.repeat(monthIndex));
+  const { left, top, width, height } = segment.getBoundingClientRect();
+  segment.dispatchEvent(
+    new MouseEvent('mousemove', {
+      bubbles: true,
+      clientX: left + width / 2,
+      clientY: top + height / 2,
+    }),
+  );
   const tooltip = await waitFor(() => {
-    const element = canvasElement.querySelector<HTMLElement>('.recharts-tooltip-wrapper dl');
-    if (!element?.closest('.recharts-tooltip-wrapper')?.textContent) throw new Error('No tooltip');
-    return element.parentElement as HTMLElement;
+    const box = canvasElement.querySelector<HTMLElement>(
+      '.recharts-tooltip-wrapper dl',
+    )?.parentElement;
+    if (!box?.textContent.startsWith(MONTHS[monthIndex]?.longLabel ?? '')) {
+      throw new Error(`Tooltip for month ${monthIndex} not shown`);
+    }
+    return box;
   });
   return within(tooltip);
 }
@@ -66,7 +73,7 @@ async function segments(canvasElement: HTMLElement, seriesIndex: number) {
 }
 
 export const CompanyOverview: Story = {
-  play: async ({ canvas, canvasElement, userEvent, step }) => {
+  play: async ({ canvas, canvasElement, step }) => {
     await expect(canvas.getByRole('heading', { name: 'Company' })).toBeVisible();
     await expect(canvas.getByText('By branch')).toBeVisible();
     const legend = canvas.getByRole('list', { name: 'Series' });
@@ -84,7 +91,7 @@ export const CompanyOverview: Story = {
     ).toBeInTheDocument();
 
     await step('February tooltip omits Reported total when it equals the breakdown', async () => {
-      const tooltip = await openTooltipAt(canvasElement, userEvent, 0);
+      const tooltip = await openTooltipAt(canvasElement, 0);
       await expect(tooltip.getByText('February 2024')).toBeVisible();
       await expect(tooltip.getByText('Breakdown total').nextElementSibling).toHaveTextContent(
         '250',
@@ -93,7 +100,7 @@ export const CompanyOverview: Story = {
     });
 
     await step('May tooltip lists every branch, the breakdown and reported totals', async () => {
-      const tooltip = await openTooltipAt(canvasElement, userEvent, 3);
+      const tooltip = await openTooltipAt(canvasElement, 3);
       await expect(tooltip.getByText('May 2024')).toBeVisible();
       await expect(tooltip.getByText('Branch 1').nextElementSibling).toHaveTextContent('156');
       await expect(tooltip.getByText('Branch 2').nextElementSibling).toHaveTextContent('87');
@@ -130,13 +137,13 @@ export const SegmentAndLegendSelection: Story = {
 
 export const Branch1Scope: Story = {
   args: { model: scope(IDS.branch1), hasSelection: true },
-  play: async ({ canvas, canvasElement, userEvent }) => {
+  play: async ({ canvas, canvasElement }) => {
     await expect(canvas.getByRole('heading', { name: 'Company / Branch 1' })).toBeVisible();
     await expect(canvas.getByText('By adviser')).toBeVisible();
     await expect(
       within(canvas.getByRole('list', { name: 'Series' })).getAllByRole('button'),
     ).toHaveLength(5);
-    const tooltip = await openTooltipAt(canvasElement, userEvent, 6);
+    const tooltip = await openTooltipAt(canvasElement, 6);
     await expect(tooltip.getByText('Robert Chen').nextElementSibling).toHaveTextContent('58');
     await expect(tooltip.getByText('Breakdown total').nextElementSibling).toHaveTextContent('216');
     await expect(tooltip.getByText('Reported total').nextElementSibling).toHaveTextContent('214');
@@ -151,7 +158,7 @@ export const AnnaScope: Story = {
     ).toBeVisible();
     await expect(canvas.getByText('By acquisition channel')).toBeVisible();
 
-    const tooltip = await openTooltipAt(canvasElement, userEvent, 4);
+    const tooltip = await openTooltipAt(canvasElement, 4);
     await expect(tooltip.getByText('June 2024')).toBeVisible();
     // Zero values are listed, not dropped.
     await expect(tooltip.getByText('New organic').nextElementSibling).toHaveTextContent('0');
@@ -170,7 +177,7 @@ export const LeafScope: Story = {
     await expect(canvas.getByText('Monthly clients')).toBeVisible();
     await expect(canvas.queryByRole('list', { name: 'Series' })).toBeNull();
 
-    const tooltip = await openTooltipAt(canvasElement, userEvent, 11);
+    const tooltip = await openTooltipAt(canvasElement, 11);
     await expect(tooltip.getByText('Branch 2').nextElementSibling).toHaveTextContent('91');
     await expect(tooltip.queryByText('Breakdown total')).toBeNull();
     await expect(tooltip.queryByText('Reported total')).toBeNull();

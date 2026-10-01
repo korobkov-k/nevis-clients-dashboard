@@ -18,7 +18,7 @@ export function ChartTooltip({ model, monthIndex }: ChartTooltipProps) {
 
   return (
     <div
-      aria-live="polite"
+      aria-hidden="true"
       className="min-w-44 rounded-panel bg-background-secondary px-3 py-2 text-footnote shadow-[0_2px_12px_rgb(20_20_19/0.12)] tabular-nums-lining"
     >
       <p className="mb-1 font-medium">{month.longLabel}</p>

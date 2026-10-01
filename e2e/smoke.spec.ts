@@ -5,9 +5,9 @@ const row = (page: Page, name: RegExp) => page.getByRole('row', { name });
 const legend = (page: Page) => page.getByRole('list', { name: 'Series' });
 
 async function readTooltipAt(page: Page, monthIndex: number): Promise<Locator> {
-  await page.locator('.recharts-surface[tabindex="0"]').focus();
-  for (let index = 0; index < monthIndex; index += 1) await page.keyboard.press('ArrowRight');
-  return page.locator('.recharts-tooltip-wrapper [aria-live]');
+  const firstSeries = page.locator('.chart-interactive .recharts-bar-rectangles').first();
+  await firstSeries.locator('.recharts-bar-rectangle path').nth(monthIndex).hover();
+  return page.locator('.recharts-tooltip-wrapper dl').locator('..');
 }
 
 test('drills down from the chart and keeps context while the treegrid changes', async ({

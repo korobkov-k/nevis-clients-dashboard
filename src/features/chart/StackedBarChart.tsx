@@ -24,7 +24,6 @@ import {
 
 /** The tooltip wrapper covers the chart; BarAnchoredTooltip positions itself inside it. */
 const TOOLTIP_WRAPPER_STYLE = { width: '100%', height: '100%', pointerEvents: 'none' } as const;
-const ACTIVE_SEGMENT = { className: 'chart-segment-active' };
 
 interface StackedBarChartProps {
   model: ChartModel;
@@ -52,9 +51,12 @@ export const StackedBarChart = memo(function StackedBarChart({
       <BarChart
         data={model.months}
         {...CHART_PROPS}
-        accessibilityLayer
+        // Pointer-only by product decision: exact values are reachable through the treegrid, so
+        // the chart is a single labelled image rather than a second keyboard surface.
+        accessibilityLayer={false}
+        role="img"
         // aria-label instead of an SVG <title>, which would also show a native browser tooltip.
-        aria-label={`Monthly clients chart: ${model.path.map((node) => node.name).join(' / ')}. Use the left and right arrow keys to read each month.`}
+        aria-label={`Monthly clients chart: ${model.path.map((node) => node.name).join(' / ')}. Exact values are in the table below.`}
       >
         <CartesianGrid {...GRID_PROPS} />
         <XAxis {...X_AXIS_PROPS} />
@@ -82,7 +84,6 @@ export const StackedBarChart = memo(function StackedBarChart({
               name={series.name}
               dataKey={(month: ChartMonthDatum) => month.values[seriesIndex] ?? 0}
               fill={getChartColor(series.colorIndex)}
-              activeBar={ACTIVE_SEGMENT}
               isAnimationActive={animateBars}
               onClick={() => {
                 onSelectSeries(series.nodeId);
