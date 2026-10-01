@@ -28,7 +28,7 @@ function LegendItem({
   item: ChartSeries;
   onSelect: ChartLegendProps['onSelect'];
 }) {
-  const linkedHover = useHoverSelector((target) => target?.nodeId === item.nodeId);
+  const linkedHover = useHoverSelector(({ target }) => target?.nodeId === item.nodeId);
   const { hover, unhover } = useHoverActions();
   return (
     <button

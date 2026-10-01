@@ -37,7 +37,10 @@ export const TreegridRow = memo(function TreegridRow({
   onChevronClick,
 }: TreegridRowProps) {
   const nameId = useId();
-  const linkedHover = useHoverSelector((target) => target?.nodeId === node.id);
+  // Focus-driven hover is already shown by the focus ring, so rows react to pointer hover only.
+  const linkedHover = useHoverSelector(
+    ({ target, source }) => source === 'pointer' && target?.nodeId === node.id,
+  );
   const { hover, unhover } = useHoverActions();
   const handleChevronClick = (event: MouseEvent) => {
     event.stopPropagation();

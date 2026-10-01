@@ -11,7 +11,7 @@ interface HoverableSegmentProps extends BarShapeProps {
  */
 export function HoverableSegment({ seriesId, ...shapeProps }: HoverableSegmentProps) {
   const highlighted = useHoverSelector(
-    (target) =>
+    ({ target }) =>
       target?.nodeId === seriesId &&
       (target.monthIndex === null || target.monthIndex === shapeProps.index),
   );

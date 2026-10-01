@@ -150,6 +150,24 @@ export const LinkedHover: Story = {
   },
 };
 
+export const KeyboardFocusActsAsHover: Story = {
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const row = (name: RegExp) => canvas.getByRole('row', { name });
+    canvas.getByRole('button', { name: 'Branch 3' }).focus();
+    await userEvent.tab();
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}');
+    await expect(row(/^Branch 2/)).toHaveFocus();
+
+    // The chart highlights the focused node's series; the row keeps only its focus ring.
+    await waitFor(() => expect(highlightedSegments(canvasElement, 1)).toBe(12));
+    await expect(row(/^Branch 2/)).not.toHaveClass('bg-surface-hover');
+
+    // Leaving the grid clears the highlight.
+    await userEvent.tab();
+    await waitFor(() => expect(highlightedSegments(canvasElement, 1)).toBe(0));
+  },
+};
+
 export const LeafChartIsIdempotent: Story = {
   play: async ({ canvas, canvasElement, userEvent }) => {
     await userEvent.click(canvas.getByRole('row', { name: /^Branch 2/ }));

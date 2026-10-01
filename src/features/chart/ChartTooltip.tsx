@@ -16,7 +16,7 @@ interface ChartTooltipProps {
  * when the source disagrees, the reported total. Leaves show just their own value.
  */
 export function ChartTooltip({ model, monthIndex }: ChartTooltipProps) {
-  const hoveredId = useHoverSelector((target) => target?.nodeId ?? null);
+  const hoveredId = useHoverSelector(({ target }) => target?.nodeId ?? null);
   const month = model.months[monthIndex];
   if (month === undefined) return null;
   const reportedTotal = getReportedTotalMismatch(model, month);

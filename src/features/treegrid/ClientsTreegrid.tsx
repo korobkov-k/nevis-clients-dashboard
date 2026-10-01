@@ -3,6 +3,7 @@ import { hasChildren, type TreeNode } from '../../domain/clientTree';
 import { MONTHS } from '../../domain/months';
 import type { FocusLocation, SelectionOrigin } from '../dashboard/dashboardState';
 import { FRAME_CLASS, SCROLLER_CLASS, TABLE_CLASS, TreegridHeader } from './treegridLayout';
+import { useHoverActions } from '../dashboard/linkedHover';
 import { TreegridRow } from './TreegridRow';
 import {
   findTypeaheadMatch,
@@ -78,6 +79,7 @@ export function ClientsTreegrid({
   const tableRef = useRef<HTMLTableElement>(null);
   const [typeahead] = useState(createTypeaheadBuffer);
   const helpId = useId();
+  const hoverActions = useHoverActions();
 
   const handleRowClick = useCallback(
     (nodeId: string) => {
@@ -97,7 +99,15 @@ export function ClientsTreegrid({
 
   const handleFocus = (event: FocusEvent<HTMLTableElement>) => {
     const location = readLocation(event.target);
-    if (location !== null) onFocusChange(location);
+    if (location === null) return;
+    onFocusChange(location);
+    // Keyboard focus (not focus from a click) highlights the row's node in the chart.
+    const keyboardFocus = event.target instanceof Element && event.target.matches(':focus-visible');
+    hoverActions.focus(keyboardFocus ? location.rowId : null);
+  };
+
+  const handleBlur = (event: FocusEvent<HTMLTableElement>) => {
+    if (!event.currentTarget.contains(event.relatedTarget)) hoverActions.focus(null);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLTableElement>) => {
@@ -156,6 +166,7 @@ export function ClientsTreegrid({
           aria-describedby={helpId}
           className={TABLE_CLASS}
           onFocus={handleFocus}
+          onBlur={handleBlur}
           onKeyDown={handleKeyDown}
         >
           <TreegridHeader />
