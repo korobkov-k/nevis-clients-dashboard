@@ -114,7 +114,7 @@ export const ChartPanel = memo(function ChartPanel({
             No data to display
           </div>
         ) : (
-          <div className="text-footnote tabular-nums-lining">
+          <div className="chart-interactive text-footnote tabular-nums-lining">
             <StackedBarChart model={model} animate={animate} onSelectSeries={handleSelectSeries} />
           </div>
         )}

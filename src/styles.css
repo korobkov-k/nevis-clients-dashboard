@@ -55,6 +55,11 @@
     min-width: 0;
   }
 
+  /* Tailwind v4 resets buttons to the default cursor; interactive buttons should show a pointer. */
+  button:not(:disabled, [aria-disabled='true']) {
+    cursor: pointer;
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-focus);
     outline-offset: 2px;
@@ -147,6 +152,12 @@
     outline: 2px solid var(--color-focus);
     outline-offset: -2px;
   }
+}
+
+/* Bar segments select their node; empty plot space does nothing. */
+.chart-interactive .recharts-bar-rectangle,
+.chart-interactive .recharts-active-bar {
+  cursor: pointer;
 }
 
 /* Hovered or keyboard-active month: brighter, more saturated version of any series colour. */
