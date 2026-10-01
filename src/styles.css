@@ -166,7 +166,7 @@
   cursor: pointer;
 }
 
-/* Hovered stack section: brighter, more saturated version of any series colour. */
-.chart-interactive .recharts-bar-rectangle:hover {
+/* Linked-hover segment: brighter, more saturated version of any series colour. */
+.chart-segment-highlighted {
   filter: brightness(1.06) saturate(1.25);
 }

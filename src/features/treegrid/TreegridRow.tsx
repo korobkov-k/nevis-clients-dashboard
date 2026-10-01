@@ -2,6 +2,7 @@ import { memo, useId, type MouseEvent } from 'react';
 import type { TreeNode } from '../../domain/clientTree';
 import { formatCount } from '../../domain/formatCount';
 import { MONTHS } from '../../domain/months';
+import { useHoverActions, useHoverSelector } from '../dashboard/linkedHover';
 import { RowName } from './RowName';
 import { NAME_CELL_CLASS, ROW_CLASS, VALUE_CELL_CLASS } from './treegridLayout';
 
@@ -17,6 +18,16 @@ interface TreegridRowProps {
 
 const tabIndexFor = (isTabStop: boolean) => (isTabStop ? 0 : -1);
 
+/** Linked hover (from the chart, legend or path) uses the same colour as pointer hover. */
+function rowBackground(selected: boolean, linkedHover: boolean): string {
+  if (selected) {
+    return linkedHover
+      ? 'bg-surface-selected-hover'
+      : 'bg-surface-selected hover:bg-surface-selected-hover';
+  }
+  return linkedHover ? 'bg-surface-hover' : 'bg-background-secondary hover:bg-surface-hover';
+}
+
 export const TreegridRow = memo(function TreegridRow({
   node,
   expanded,
@@ -26,6 +37,8 @@ export const TreegridRow = memo(function TreegridRow({
   onChevronClick,
 }: TreegridRowProps) {
   const nameId = useId();
+  const linkedHover = useHoverSelector((target) => target?.nodeId === node.id);
+  const { hover, unhover } = useHoverActions();
   const handleChevronClick = (event: MouseEvent) => {
     event.stopPropagation();
     onChevronClick(node.id);
@@ -42,13 +55,15 @@ export const TreegridRow = memo(function TreegridRow({
       aria-labelledby={nameId}
       tabIndex={tabIndexFor(tabStopColumn === null)}
       data-row-id={node.id}
-      className={`treegrid-row ${ROW_CLASS} cursor-pointer ${
-        selected
-          ? 'bg-surface-selected hover:bg-surface-selected-hover'
-          : 'bg-background-secondary hover:bg-surface-hover'
-      }`}
+      className={`treegrid-row ${ROW_CLASS} cursor-pointer ${rowBackground(selected, linkedHover)}`}
       onClick={() => {
         onRowClick(node.id);
+      }}
+      onMouseEnter={() => {
+        hover(node.id);
+      }}
+      onMouseLeave={() => {
+        unhover(node.id);
       }}
     >
       <th

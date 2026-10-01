@@ -113,6 +113,43 @@ export const BreadcrumbNavigation: Story = {
   },
 };
 
+function highlightedSegments(canvasElement: HTMLElement, seriesIndex: number) {
+  const layer = canvasElement.querySelectorAll('.recharts-bar-rectangles')[seriesIndex];
+  return layer?.querySelectorAll('.chart-segment-highlighted').length ?? 0;
+}
+
+export const LinkedHover: Story = {
+  play: async ({ canvas, canvasElement, userEvent, step }) => {
+    const row = (name: RegExp) => canvas.getByRole('row', { name });
+    const legendItem = (name: string) =>
+      within(canvas.getByRole('list', { name: 'Series' })).getByRole('button', { name });
+
+    await step('A table row highlights its whole series and legend entry', async () => {
+      await userEvent.hover(row(/^Branch 2/));
+      await waitFor(() => expect(highlightedSegments(canvasElement, 1)).toBe(12));
+      await expect(highlightedSegments(canvasElement, 0)).toBe(0);
+      await expect(legendItem('Branch 2')).toHaveClass('text-content-primary');
+      await userEvent.unhover(row(/^Branch 2/));
+      await waitFor(() => expect(highlightedSegments(canvasElement, 1)).toBe(0));
+    });
+
+    await step('A legend entry highlights its row with the hover colour', async () => {
+      await userEvent.hover(legendItem('Branch 3'));
+      await expect(row(/^Branch 3/)).toHaveClass('bg-surface-hover');
+      await expect(highlightedSegments(canvasElement, 2)).toBe(12);
+      await userEvent.unhover(legendItem('Branch 3'));
+      await expect(row(/^Branch 3/)).not.toHaveClass('bg-surface-hover');
+    });
+
+    await step('A chart segment highlights only itself, its row and tooltip line', async () => {
+      const segment = await segmentOf(canvasElement, 0, 4);
+      await userEvent.hover(segment);
+      await waitFor(() => expect(highlightedSegments(canvasElement, 0)).toBe(1));
+      await expect(row(/^Branch 1/)).toHaveClass('bg-surface-hover');
+    });
+  },
+};
+
 export const LeafChartIsIdempotent: Story = {
   play: async ({ canvas, canvasElement, userEvent }) => {
     await userEvent.click(canvas.getByRole('row', { name: /^Branch 2/ }));

@@ -10,14 +10,15 @@ Canonical instructions for humans and coding agents working in this repository.
 
 ## Boundaries
 
-| Layer             | Location                                          | Rule                                                                                      |
-| ----------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Contract          | `shared/clientsContract.ts`                       | Shared by server and client. No fixtures.                                                 |
-| API               | `server/`                                         | `GET /api/clients` returns the root object as-is. Production also serves `dist/client`.   |
-| Request lifecycle | `src/api/`, `DashboardPage`                       | TanStack Query, no automatic retries or focus refetching.                                 |
-| Pure domain       | `src/domain/`                                     | Tree index, visible rows, chart model, axis scale. No React.                              |
-| Controller        | `src/features/dashboard/dashboardState.ts`        | One reducer for selection, expansion and logical focus. Actions carry node ID and origin. |
-| Presentation      | `src/features/{chart,treegrid}`, `src/components` | Narrow props and callbacks; DOM focus through refs; no cross-component sync effects.      |
+| Layer             | Location                                                  | Rule                                                                                            |
+| ----------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Contract          | `shared/clientsContract.ts`                               | Shared by server and client. No fixtures.                                                       |
+| API               | `server/`                                                 | `GET /api/clients` returns the root object as-is. Production also serves `dist/client`.         |
+| Request lifecycle | `src/api/`, `DashboardPage`                               | TanStack Query, no automatic retries or focus refetching.                                       |
+| Pure domain       | `src/domain/`                                             | Tree index, visible rows, chart model, axis scale. No React.                                    |
+| Controller        | `src/features/dashboard/dashboardState.ts`                | One reducer for selection, expansion and logical focus. Actions carry node ID and origin.       |
+| Linked hover      | `src/features/dashboard/hoverStore.ts`, `linkedHover.tsx` | Transient pointer state only, read through primitive selectors. Never put hover in the reducer. |
+| Presentation      | `src/features/{chart,treegrid}`, `src/components`         | Narrow props and callbacks; DOM focus through refs; no cross-component sync effects.            |
 
 - The production client never imports `server/**` (enforced by ESLint). Stories and tests may reuse the fixture via `src/test/sourceTree.ts`.
 - Styling: Tailwind utilities plus the tokens and small global layer in `src/styles.css`. No CSS Modules or UI kits (MUI, Radix, shadcn, grid libraries).

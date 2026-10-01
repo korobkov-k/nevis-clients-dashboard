@@ -7,12 +7,15 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  type BarShapeProps,
 } from 'recharts';
-import { memo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import type { ChartModel, ChartMonthDatum } from '../../domain/chartModel';
 import { getChartColor } from '../../domain/chartPalette';
 import { formatCount } from '../../domain/formatCount';
+import { useHoverActions } from '../dashboard/linkedHover';
 import { BarAnchoredTooltip } from './BarAnchoredTooltip';
+import { HoverableSegment } from './HoverableSegment';
 import {
   BAR_RADIUS_PX,
   CHART_HEIGHT_PX,
@@ -45,6 +48,19 @@ export const StackedBarChart = memo(function StackedBarChart({
   // animate only when the scope changes.
   const [initialModel] = useState(model);
   const animateBars = animate && model !== initialModel;
+  const { hover, unhover } = useHoverActions();
+
+  // One stable shape renderer per series, so linked hover never re-renders Recharts itself.
+  const segmentShapes = useMemo(
+    () =>
+      model.series.map(
+        (series) =>
+          function SeriesSegment(props: BarShapeProps) {
+            return <HoverableSegment {...props} seriesId={series.nodeId} />;
+          },
+      ),
+    [model.series],
+  );
 
   return (
     <ResponsiveContainer width="100%" height={CHART_HEIGHT_PX}>
@@ -85,7 +101,16 @@ export const StackedBarChart = memo(function StackedBarChart({
               dataKey={(month: ChartMonthDatum) => month.values[seriesIndex] ?? 0}
               fill={getChartColor(series.colorIndex)}
               isAnimationActive={animateBars}
+              shape={segmentShapes[seriesIndex]}
+              onMouseEnter={(_, monthIndex) => {
+                hover(series.nodeId, monthIndex);
+              }}
+              onMouseLeave={() => {
+                unhover(series.nodeId);
+              }}
               onClick={() => {
+                // The clicked segment unmounts with the old scope and never sees mouseleave.
+                unhover(series.nodeId);
                 onSelectSeries(series.nodeId);
               }}
             />

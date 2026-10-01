@@ -4,6 +4,7 @@ import { Panel } from '../../components/Panel';
 import { buildClientTree } from '../../domain/clientTree';
 import { ChartPanel } from '../chart/ChartPanel';
 import { ClientsTreegrid } from '../treegrid/ClientsTreegrid';
+import { LinkedHoverProvider } from './linkedHover';
 import { useDashboardController } from './useDashboardController';
 
 export interface DashboardProps {
@@ -18,7 +19,7 @@ export function Dashboard({ data, animateChart = true }: DashboardProps) {
     useDashboardController(tree);
 
   return (
-    <>
+    <LinkedHoverProvider>
       <ChartPanel
         model={chartModel}
         hasSelection={selectedId !== null}
@@ -39,6 +40,6 @@ export function Dashboard({ data, animateChart = true }: DashboardProps) {
           onFocusChange={actions.moveFocus}
         />
       </Panel>
-    </>
+    </LinkedHoverProvider>
   );
 }

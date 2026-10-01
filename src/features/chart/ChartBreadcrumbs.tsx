@@ -1,5 +1,6 @@
 import { Fragment, type MouseEvent } from 'react';
 import type { ChartModel } from '../../domain/chartModel';
+import { useHoverActions } from '../dashboard/linkedHover';
 
 interface ChartBreadcrumbsProps {
   path: ChartModel['path'];
@@ -12,6 +13,7 @@ interface ChartBreadcrumbsProps {
  * name stays the full path.
  */
 export function ChartBreadcrumbs({ path, onSelect }: ChartBreadcrumbsProps) {
+  const { hover, unhover } = useHoverActions();
   return path.map((node, index) => {
     const isCurrent = index === path.length - 1;
     return (
@@ -29,7 +31,14 @@ export function ChartBreadcrumbs({ path, onSelect }: ChartBreadcrumbsProps) {
             type="button"
             className="rounded-[4px] text-content-secondary underline-offset-2 hover:text-content-primary hover:underline"
             onClick={(event) => {
+              unhover(node.id);
               onSelect(node.id, event);
+            }}
+            onMouseEnter={() => {
+              hover(node.id);
+            }}
+            onMouseLeave={() => {
+              unhover(node.id);
             }}
           >
             {node.name}
