@@ -9,7 +9,7 @@ import clients from './data/clients.json' with { type: 'json' };
 
 describe('source fixture', () => {
   it('still matches the payload transcribed from the brief', () => {
-    // Guards against accidental edits: update only if the source PDF itself changes.
+    // Guards against accidental edits: update only if the source brief itself changes.
     const digest = createHash('sha256').update(JSON.stringify(clients)).digest('hex');
     expect(digest).toBe('4fb01d77e67f245c6e67ba03ccfd64ce996ed279e803b66284272a2bfedc9661');
   });

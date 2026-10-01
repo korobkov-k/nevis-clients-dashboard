@@ -4,7 +4,7 @@ A linked stacked bar chart and treegrid that let you explore monthly client coun
 
 ![Dashboard with Anna Blackwood selected](e2e/baselines/expanded-anna-desktop-visual-darwin.png)
 
-The requirements come from `docs/`: the original brief (PDF), the RFC and the acceptance checklist. Contributor and agent rules are in [AGENTS.md](./AGENTS.md).
+The requirements come from the original assignment brief (a PDF, not included in this repository) and from `docs/`: the RFC and the acceptance checklist. Contributor and agent rules are in [AGENTS.md](./AGENTS.md).
 
 ## Setup
 

@@ -4,7 +4,7 @@ Canonical instructions for humans and coding agents working in this repository.
 
 ## Sources and precedence
 
-1. `server/data/clients.json`: the payload copied unchanged from `docs/source/Nevis-Frontend-Home-Assignment.pdf`. It is the only numeric truth. Never edit, normalise or reconcile it.
+1. `server/data/clients.json`: the payload copied unchanged from the assignment brief (a PDF that is not part of this repository). It is the only numeric truth. Never edit, normalise or reconcile it.
 2. `docs/nevis-frontend-rfc.md` and `docs/nevis-frontend-acceptance.md`: agreed product/technical decisions and the acceptance checklist, including the keyboard contract and palette.
 3. [Figma](https://www.figma.com/design/t6itC2qsmr3WLPugwrVdqS/Web-engineer-home-task?node-id=1-2781): appearance only. Numbers that appear only in Figma (e.g. Branch 1 Jul 2024 = 291) are ignored.
 
