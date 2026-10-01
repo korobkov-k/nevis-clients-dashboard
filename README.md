@@ -74,27 +74,6 @@ These were added or changed deliberately, as unspecified states; none of them we
 - **Leaf rows.** Leaves have no chevron (see above).
 - **375 px layout.** The sticky name column is capped at `min(264px, 50vw)` with a divider, and the indent step shrinks from 28 px to 16 px. Long names are truncated visually but keep their full accessible name, and the table scrolls horizontally inside its panel.
 - **Assets.** I use Inter Variable with the optical-size axis in place of Inter Display for the title. The adviser photos are exported from Figma and downscaled to 80 px JPEGs; any other adviser falls back to initials. The header placeholder font (Test Founders Grotesk, a commercial trial font) is invisible in the design, so I don't use it.
-- **Design access.** I read the Figma design through the Figma MCP, using a duplicate of the file because MCP needs edit access. I compared the first baselines against the Figma screenshots of the main screen and the row, branch and channel reference frames.
-
-## Test evidence
-
-These ran locally on macOS with Chromium 153 (Playwright 1.63):
-
-| Suite                                                                                                                                                                                                                                                                         | Result     |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| Vitest unit (node): adapters with literal checklist values, reducer (every selection origin, reveal, collapse, focus recovery, chart independence), keyboard mapping, typeahead, contract validation, tooltip placement, API delay config, fixture digest, Fastify `inject()` | 107 passed |
-| Storybook interaction tests (Vitest browser addon): chart scopes and tooltip totals on hover, segment and legend activation, selection vs disclosure, full keyboard contract, focus recovery, linked navigation, loading/shimmer/reduced-motion/error/retry                   | 29 passed  |
-| Playwright smoke (real API, production build): drill-down journey, touch tap, 375 px scroll retention                                                                                                                                                                         | 3 passed   |
-| Playwright visual (6 baselines reviewed against Figma, plus a skeleton-to-dashboard no-shift check)                                                                                                                                                                           | 7 passed   |
-| `pnpm build`, `pnpm start`, `pnpm build-storybook`                                                                                                                                                                                                                            | Succeeded  |
-
-**Render behaviour.** I didn't use the React DevTools Profiler, which isn't available in this headless setup. Instead I ran a temporary render-count probe in React dev mode and didn't commit it. Moving focus with the arrow keys re-rendered only the rows that lose and gain the tab stop, keyboard expansion re-rendered only the affected rows, and neither caused a chart render. Selection re-rendered the chart once.
-
-**Not verified:**
-
-- **Screen readers:** I didn't test with a real one. The accessibility tree and keyboard behaviour were checked in Chromium only.
-- **Other platforms:** the visual baselines are macOS-specific (`-darwin`), and Linux CI would need its own reviewed baselines.
-- **Colour vision:** I didn't evaluate the palette for colour-vision deficiencies beyond visual review.
 
 ## Known limitations
 
@@ -105,7 +84,12 @@ These ran locally on macOS with Chromium 153 (Playwright 1.63):
 
 ## What I would do next
 
-- Add an avatar URL (and the period) to the API contract instead of mapping them in the client.
+- Discuss invalid data cases with the team (why reported sum differs from real sum of child elements)
+- Add an avatar URL and time periods for values to the API contract instead of mapping them in the client.
 - Test with VoiceOver and NVDA, and tune the treegrid and chart announcements.
-- Set up CI with Linux-generated, reviewed visual baselines.
 - Code-split Recharts if the dashboard grows beyond this single view.
+- Enable and enhance recharts keyboard navigation, if needed. (For now i decided that grid navigation is enough, its more convinient and straightforward, charts are more convinient to use with cursor.)
+- Discuss with the team if we want to add more hover effects (highlight columns and bars on hover). That may be too heavy visually.
+- Add conditional semi-transparent white mask to show that table is scrollable.
+- If we have more variable datasets rather then annual report, prepare test cases and adapt the ui. If the data is heavy - implement a contract with pagination, branch lazy loading, table infinite scroll, virtual scroll (if that is nesesary).
+- Dark theme support, i18n for ui copys, if needed.
