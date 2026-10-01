@@ -1,15 +1,8 @@
-import {
-  Fragment,
-  memo,
-  useCallback,
-  useId,
-  useLayoutEffect,
-  useRef,
-  type MouseEvent,
-} from 'react';
+import { memo, useCallback, useId, useLayoutEffect, useRef, type MouseEvent } from 'react';
 import { Panel } from '../../components/Panel';
 import type { ChartModel } from '../../domain/chartModel';
 import { PERIOD_LABEL } from '../../domain/months';
+import { ChartBreadcrumbs } from './ChartBreadcrumbs';
 import { ChartLegend } from './ChartLegend';
 import { CHART_HEIGHT_PX, CHART_PANEL_CLASS } from './chartLayout';
 import { StackedBarChart } from './StackedBarChart';
@@ -19,7 +12,10 @@ export interface ChartPanelProps {
   /** Whether a node is explicitly selected, which enables the overview reset. */
   hasSelection: boolean;
   animate?: boolean;
-  onSelectNode: (nodeId: string, origin: 'chart-segment' | 'chart-legend') => void;
+  onSelectNode: (
+    nodeId: string,
+    origin: 'chart-segment' | 'chart-legend' | 'chart-breadcrumb',
+  ) => void;
   onShowOverview: () => void;
 }
 
@@ -32,7 +28,7 @@ function describe(model: ChartModel): string {
   return `${chart}, ${PERIOD_LABEL}. Exact values are in the table below.`;
 }
 
-/** Chart surface with its scope context (path, grouping), overview reset and legend. */
+/** Chart surface with its scope context (clickable path, grouping), overview reset and legend. */
 export const ChartPanel = memo(function ChartPanel({
   model,
   hasSelection,
@@ -43,20 +39,25 @@ export const ChartPanel = memo(function ChartPanel({
   const headingId = useId();
   const descriptionId = useId();
   const headingRef = useRef<HTMLHeadingElement>(null);
-  const activatedLegendButton = useRef<HTMLButtonElement | null>(null);
+  const activatedButton = useRef<HTMLButtonElement | null>(null);
 
-  // A legend entry belongs to the previous scope, so it unmounts after activation; keep
-  // keyboard focus inside the chart by moving it to the stable heading.
+  // Legend entries and breadcrumbs belong to the previous scope and may unmount after
+  // activation; keep focus inside the chart by moving it to the stable heading.
   useLayoutEffect(() => {
-    const button = activatedLegendButton.current;
-    activatedLegendButton.current = null;
+    const button = activatedButton.current;
+    activatedButton.current = null;
     const focusLost = document.activeElement === null || document.activeElement === document.body;
     if (button !== null && !button.isConnected && focusLost) headingRef.current?.focus();
   }, [model]);
 
   const handleLegendSelect = (nodeId: string, event: MouseEvent<HTMLButtonElement>) => {
-    activatedLegendButton.current = event.currentTarget;
+    activatedButton.current = event.currentTarget;
     onSelectNode(nodeId, 'chart-legend');
+  };
+
+  const handleBreadcrumbSelect = (nodeId: string, event: MouseEvent<HTMLButtonElement>) => {
+    activatedButton.current = event.currentTarget;
+    onSelectNode(nodeId, 'chart-breadcrumb');
   };
 
   const handleSelectSeries = useCallback(
@@ -76,17 +77,7 @@ export const ChartPanel = memo(function ChartPanel({
             tabIndex={-1}
             className="text-body font-medium break-words"
           >
-            {model.path.map((node, index) => (
-              <Fragment key={node.id}>
-                {index > 0 && (
-                  <>
-                    {' '}
-                    <span className="text-content-secondary">/</span>{' '}
-                  </>
-                )}
-                {node.name}
-              </Fragment>
-            ))}
+            <ChartBreadcrumbs path={model.path} onSelect={handleBreadcrumbSelect} />
           </h2>
           <p className="text-footnote text-content-secondary">{model.groupingLabel}</p>
         </div>

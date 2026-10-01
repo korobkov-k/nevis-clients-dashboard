@@ -167,6 +167,16 @@ export const AnnaScope: Story = {
 
     await userEvent.click(canvas.getByRole('button', { name: 'Company overview' }));
     await expect(args.onShowOverview).toHaveBeenCalledOnce();
+
+    // Ancestors in the path are buttons; the current node is not.
+    const heading = canvas.getByRole('heading', { level: 2 });
+    await expect(
+      within(heading)
+        .getAllByRole('button')
+        .map((b) => b.textContent),
+    ).toEqual(['Company', 'Branch 1']);
+    await userEvent.click(within(heading).getByRole('button', { name: 'Branch 1' }));
+    await expect(args.onSelectNode).toHaveBeenLastCalledWith(IDS.branch1, 'chart-breadcrumb');
   },
 };
 

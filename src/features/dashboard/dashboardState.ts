@@ -20,7 +20,8 @@ export interface DashboardState {
 }
 
 /** Where a selection came from. Each origin has its own expansion and focus consequences. */
-export type SelectionOrigin = 'row-pointer' | 'row-keyboard' | 'chart-segment' | 'chart-legend';
+export type SelectionOrigin =
+  'row-pointer' | 'row-keyboard' | 'chart-segment' | 'chart-legend' | 'chart-breadcrumb';
 
 export type DashboardAction =
   | { type: 'nodeSelected'; nodeId: string; origin: SelectionOrigin }
@@ -88,6 +89,7 @@ function selectNode(
       return selected;
     case 'chart-segment':
     case 'chart-legend':
+    case 'chart-breadcrumb':
       // Repeating a chart selection (e.g. clicking a leaf bar) is a no-op.
       if (selected === state) return state;
       // Reveal the row and make it the next treegrid entry target, without its children.

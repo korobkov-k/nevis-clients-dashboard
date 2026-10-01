@@ -53,7 +53,7 @@ describe('selection', () => {
     ).toBe(once);
   });
 
-  it.each(['chart-segment', 'chart-legend'] as const)(
+  it.each(['chart-segment', 'chart-legend', 'chart-breadcrumb'] as const)(
     '%s selection reveals only ancestors and sets the next treegrid entry target',
     (origin) => {
       const state = run({ type: 'nodeSelected', nodeId: IDS.newOrganic, origin });

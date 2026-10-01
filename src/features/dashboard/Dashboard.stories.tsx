@@ -79,6 +79,40 @@ export const LinkedNavigation: Story = {
   },
 };
 
+export const BreadcrumbNavigation: Story = {
+  play: async ({ canvas, userEvent, step }) => {
+    const chartHeading = () => canvas.getByRole('heading', { level: 2 });
+    const crumb = (name: string) => within(chartHeading()).getByRole('button', { name });
+    const row = (name: RegExp) => canvas.getByRole('row', { name });
+
+    await step('Drill down to New paid through the legend', async () => {
+      const legend = () => canvas.getByRole('list', { name: 'Series' });
+      await userEvent.click(within(legend()).getByRole('button', { name: 'Branch 1' }));
+      await userEvent.click(within(legend()).getByRole('button', { name: 'Anna Blackwood' }));
+      await userEvent.click(within(legend()).getByRole('button', { name: 'New paid' }));
+      await expect(chartHeading()).toHaveTextContent(
+        'Company / Branch 1 / Anna Blackwood / New paid',
+      );
+    });
+
+    await step('A keyboard-activated crumb drills up and keeps focus in the chart', async () => {
+      crumb('Anna Blackwood').focus();
+      await userEvent.keyboard('{Enter}');
+      await expect(chartHeading()).toHaveTextContent('Company / Branch 1 / Anna Blackwood');
+      await expect(row(/^Anna Blackwood/)).toHaveAttribute('aria-selected', 'true');
+      await expect(chartHeading()).toHaveFocus();
+    });
+
+    await step('The Company crumb selects Company without collapsing anything', async () => {
+      await userEvent.click(crumb('Company'));
+      await expect(chartHeading()).toHaveTextContent(/^Company$/);
+      await expect(row(/^Company/)).toHaveAttribute('aria-selected', 'true');
+      await expect(row(/^Anna Blackwood/)).toHaveAttribute('aria-expanded', 'true');
+      await expect(within(chartHeading()).queryAllByRole('button')).toHaveLength(0);
+    });
+  },
+};
+
 export const LeafChartIsIdempotent: Story = {
   play: async ({ canvas, canvasElement, userEvent }) => {
     await userEvent.click(canvas.getByRole('row', { name: /^Branch 2/ }));
