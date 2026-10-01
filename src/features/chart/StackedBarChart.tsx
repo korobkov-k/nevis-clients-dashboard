@@ -12,10 +12,13 @@ import { memo } from 'react';
 import type { ChartModel, ChartMonthDatum } from '../../domain/chartModel';
 import { getChartColor } from '../../domain/chartPalette';
 import { formatCount } from '../../domain/formatCount';
-import { CHART_HEIGHT_PX, PLOT_TOP_PX, X_AXIS_HEIGHT_PX } from './chartLayout';
-import { ChartTooltip } from './ChartTooltip';
+import { BarAnchoredTooltip } from './BarAnchoredTooltip';
+import { BAR_GAP_RATIO, CHART_HEIGHT_PX, PLOT_TOP_PX, X_AXIS_HEIGHT_PX } from './chartLayout';
 
 const AXIS_TICK = { fill: 'var(--color-content-secondary)', fontSize: 12 };
+/** The tooltip wrapper covers the chart; BarAnchoredTooltip positions itself inside it. */
+const TOOLTIP_WRAPPER_STYLE = { width: '100%', height: '100%', pointerEvents: 'none' } as const;
+const ACTIVE_SEGMENT = { className: 'chart-segment-active' };
 
 interface StackedBarChartProps {
   model: ChartModel;
@@ -38,10 +41,10 @@ export const StackedBarChart = memo(function StackedBarChart({
       <BarChart
         data={model.months}
         margin={{ top: PLOT_TOP_PX, right: 0, bottom: 0, left: 0 }}
-        barCategoryGap="10.75%"
+        barCategoryGap={`${BAR_GAP_RATIO * 100}%`}
         accessibilityLayer
-        title={`Monthly clients chart: ${model.path.map((node) => node.name).join(' / ')}`}
-        desc="Use the left and right arrow keys to read each month's values."
+        // aria-label instead of an SVG <title>, which would also show a native browser tooltip.
+        aria-label={`Monthly clients chart: ${model.path.map((node) => node.name).join(' / ')}. Use the left and right arrow keys to read each month.`}
       >
         <CartesianGrid
           vertical={false}
@@ -73,11 +76,13 @@ export const StackedBarChart = memo(function StackedBarChart({
           tickFormatter={formatCount}
         />
         <Tooltip
-          cursor={{ fill: 'var(--color-surface-hover)' }}
+          cursor={false}
           isAnimationActive={false}
+          position={{ x: 0, y: 0 }}
+          wrapperStyle={TOOLTIP_WRAPPER_STYLE}
           content={({ activeIndex }) =>
             activeIndex === undefined || activeIndex === null ? null : (
-              <ChartTooltip model={model} monthIndex={Number(activeIndex)} />
+              <BarAnchoredTooltip model={model} monthIndex={Number(activeIndex)} />
             )
           }
         />
@@ -89,6 +94,7 @@ export const StackedBarChart = memo(function StackedBarChart({
               dataKey={(month: ChartMonthDatum) => month.values[seriesIndex] ?? 0}
               fill={getChartColor(series.colorIndex)}
               className="cursor-pointer"
+              activeBar={ACTIVE_SEGMENT}
               isAnimationActive={animate}
               onClick={() => {
                 onSelectSeries(series.nodeId);

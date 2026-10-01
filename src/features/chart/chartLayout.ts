@@ -6,3 +6,6 @@ export const X_AXIS_HEIGHT_PX = 31;
 
 /** Space above the plot so the top tick label is not clipped. */
 export const PLOT_TOP_PX = 10;
+
+/** Gap on each side of a bar as a fraction of its month band (Figma: 87.5 px bar in 111.5 px). */
+export const BAR_GAP_RATIO = 0.1075;

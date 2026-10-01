@@ -148,3 +148,8 @@
     outline-offset: -2px;
   }
 }
+
+/* Hovered or keyboard-active month: brighter, more saturated version of any series colour. */
+.chart-segment-active {
+  filter: brightness(1.06) saturate(1.25);
+}

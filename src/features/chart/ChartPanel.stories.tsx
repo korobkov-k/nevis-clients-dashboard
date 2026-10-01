@@ -120,7 +120,11 @@ export const SegmentAndLegendSelection: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Branch 3' }));
     await expect(args.onSelectNode).toHaveBeenLastCalledWith(IDS.branch3, 'chart-legend');
     // The legend never hides a series.
-    await expect(await segments(canvasElement, 2)).toHaveLength(12);
+    // Recharts renders the hovered segment in its own layer, so count per-month groups.
+    const branch3Groups = canvasElement
+      .querySelectorAll('.recharts-bar-rectangles')[2]
+      ?.querySelectorAll('.recharts-bar-rectangle');
+    await expect(branch3Groups).toHaveLength(12);
   },
 };
 
