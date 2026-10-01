@@ -23,7 +23,7 @@
     "test:e2e": "node --run build && playwright test --project=smoke",
     "test:visual": "node --run build && playwright test --project=visual",
     "check": "tsc -b && eslint . && prettier --check . && vitest run",
-    "test:visual:update": "node --run build && playwright test --project=visual --update-snapshots"
+    "test:visual:update": "node --run build && playwright test --project=visual --update-snapshots=all"
   },
   "dependencies": {
     "@fastify/static": "10.1.5",

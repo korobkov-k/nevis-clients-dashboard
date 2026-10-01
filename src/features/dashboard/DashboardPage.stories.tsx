@@ -19,6 +19,9 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const skeletonBars = (canvasElement: HTMLElement) =>
+  canvasElement.querySelectorAll('[data-testid="dashboard-skeleton"] .recharts-bar-rectangle');
+
 export const Loaded: Story = {
   play: async ({ canvas }) => {
     await expect(await canvas.findByRole('treegrid')).toBeVisible();
@@ -33,12 +36,21 @@ export const Loading: Story = {
   play: async ({ canvas, canvasElement }) => {
     await expect(canvas.getByRole('heading', { level: 1, name: 'Clients' })).toBeVisible();
     await expect(canvas.getByText('Loading client data…')).toBeInTheDocument();
-    await expect(canvasElement.querySelectorAll('[data-testid="skeleton-bar"]')).toHaveLength(12);
+    await waitFor(() => expect(skeletonBars(canvasElement)).toHaveLength(12));
     await expect(canvasElement.querySelectorAll('[data-testid="skeleton-row"]')).toHaveLength(4);
     await expect(canvas.getAllByText('Feb 2024')).toHaveLength(2); // chart axis + table header
+    // Gridlines but no invented Y values.
+    const yLabels = [
+      ...canvasElement.querySelectorAll(
+        '.recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value',
+      ),
+    ];
+    await expect(yLabels.every((label) => label.textContent === '')).toBe(true);
     // Decorative, static and not focusable.
     const skeleton = canvasElement.querySelector('[data-testid="dashboard-skeleton"]');
-    await expect(skeleton?.querySelectorAll('button, [tabindex]')).toHaveLength(0);
+    await expect(
+      skeleton?.querySelectorAll('button, a, input, [tabindex]:not([tabindex="-1"])'),
+    ).toHaveLength(0);
     for (const panel of skeleton?.children ?? []) {
       await expect(panel).toHaveAttribute('aria-hidden', 'true');
     }
@@ -52,14 +64,14 @@ export const LoadingWithShimmer: Story = {
   parameters: { msw: { handlers: [clientsHandlers.pending] } },
   beforeEach: () => stubReducedMotion(false),
   play: async ({ canvasElement }) => {
-    const bar = canvasElement.querySelector<HTMLElement>('[data-testid="skeleton-bar"]');
+    const chartShimmer = canvasElement.querySelector<HTMLElement>('[data-testid="chart-shimmer"]');
     const row = canvasElement.querySelector<HTMLElement>('[data-testid="skeleton-row"]');
-    await expect(bar).toHaveClass('shimmer-y');
+    await expect(chartShimmer).toHaveClass('shimmer-y');
     await expect(row).toHaveClass('shimmer-x');
-    await expect(getComputedStyle(bar as HTMLElement).animationName).toBe('shimmer-y');
+    await expect(getComputedStyle(chartShimmer as HTMLElement).animationName).toBe('shimmer-y');
     await expect(getComputedStyle(row as HTMLElement).animationName).toBe('shimmer-x');
-    // Shimmer never animates the placeholder geometry.
-    await expect((bar as HTMLElement).style.height).toBe('55%');
+    // The shimmer is an overlay; the placeholder bars themselves never animate.
+    await waitFor(() => expect(skeletonBars(canvasElement)).toHaveLength(12));
   },
 };
 
@@ -67,7 +79,7 @@ export const LoadingShimmerWithReducedMotion: Story = {
   args: { loadingShimmer: true },
   parameters: { msw: { handlers: [clientsHandlers.pending] } },
   play: async ({ canvasElement }) => {
-    await expect(canvasElement.querySelectorAll('[data-testid="skeleton-bar"]')).toHaveLength(12);
+    await waitFor(() => expect(skeletonBars(canvasElement)).toHaveLength(12));
     await expect(canvasElement.querySelector('.shimmer-x, .shimmer-y')).toBeNull();
   },
 };

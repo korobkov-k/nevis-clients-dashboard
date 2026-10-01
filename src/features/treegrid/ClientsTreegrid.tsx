@@ -2,6 +2,7 @@ import { useCallback, useId, useRef, useState, type FocusEvent, type KeyboardEve
 import { hasChildren, type TreeNode } from '../../domain/clientTree';
 import { MONTHS } from '../../domain/months';
 import type { FocusLocation, SelectionOrigin } from '../dashboard/dashboardState';
+import { FRAME_CLASS, SCROLLER_CLASS, TABLE_CLASS, TreegridHeader } from './treegridLayout';
 import { TreegridRow } from './TreegridRow';
 import {
   findTypeaheadMatch,
@@ -146,38 +147,18 @@ export function ClientsTreegrid({
   };
 
   return (
-    <div className="group/treegrid [--name-column:min(264px,50vw)] [--tree-indent:16px] sm:[--tree-indent:28px]">
-      <div className="overflow-x-auto overscroll-x-contain scroll-pl-[calc(var(--name-column)+16px)]">
+    <div className={FRAME_CLASS}>
+      <div className={SCROLLER_CLASS}>
         <table
           ref={tableRef}
           role="treegrid"
           aria-label={label}
           aria-describedby={helpId}
-          className="w-full border-separate border-spacing-0 text-body"
+          className={TABLE_CLASS}
           onFocus={handleFocus}
           onKeyDown={handleKeyDown}
         >
-          <thead>
-            <tr role="row" className="h-14 [&>th]:border-b [&>th]:border-outline-solid">
-              <th
-                role="columnheader"
-                scope="col"
-                className="sticky left-0 z-10 w-[calc(var(--name-column)+16px)] min-w-[calc(var(--name-column)+16px)] bg-background-secondary pl-4 max-sm:shadow-[inset_-1px_0_0_var(--color-outline-solid)]"
-              >
-                <span className="sr-only">Name</span>
-              </th>
-              {MONTHS.map((month) => (
-                <th
-                  key={month.key}
-                  role="columnheader"
-                  scope="col"
-                  className="pb-4 pl-4 text-right align-bottom font-normal whitespace-nowrap text-content-secondary last:pr-6"
-                >
-                  {month.label}
-                </th>
-              ))}
-            </tr>
-          </thead>
+          <TreegridHeader />
           <tbody>
             {rows.length === 0 && (
               <tr role="row">

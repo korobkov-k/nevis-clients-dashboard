@@ -3,6 +3,7 @@ import type { TreeNode } from '../../domain/clientTree';
 import { formatCount } from '../../domain/formatCount';
 import { MONTHS } from '../../domain/months';
 import { RowName } from './RowName';
+import { NAME_CELL_CLASS, ROW_CLASS, VALUE_CELL_CLASS } from './treegridLayout';
 
 interface TreegridRowProps {
   node: TreeNode;
@@ -41,7 +42,7 @@ export const TreegridRow = memo(function TreegridRow({
       aria-labelledby={nameId}
       tabIndex={tabIndexFor(tabStopColumn === null)}
       data-row-id={node.id}
-      className={`treegrid-row group/row h-14 cursor-pointer ${
+      className={`treegrid-row ${ROW_CLASS} cursor-pointer ${
         selected
           ? 'bg-surface-selected hover:bg-surface-selected-hover'
           : 'bg-background-secondary hover:bg-surface-hover'
@@ -56,7 +57,7 @@ export const TreegridRow = memo(function TreegridRow({
         scope="row"
         tabIndex={tabIndexFor(tabStopColumn === 0)}
         data-column={0}
-        className="sticky left-0 z-10 border-b border-outline-solid group-last/row:border-b-0 w-[calc(var(--name-column)+16px)] max-w-[calc(var(--name-column)+16px)] min-w-[calc(var(--name-column)+16px)] max-sm:shadow-[inset_-1px_0_0_var(--color-outline-solid)] bg-inherit py-0 pr-2 pl-4 text-left font-normal"
+        className={NAME_CELL_CLASS}
       >
         <RowName node={node} expanded={expanded} onChevronClick={handleChevronClick} />
       </th>
@@ -66,7 +67,7 @@ export const TreegridRow = memo(function TreegridRow({
           role="gridcell"
           tabIndex={tabIndexFor(tabStopColumn === index + 1)}
           data-column={index + 1}
-          className="w-[92px] border-b border-outline-solid py-0 pl-4 text-right group-last/row:border-b-0 tabular-nums-lining last:w-[116px] last:pr-6"
+          className={VALUE_CELL_CLASS}
         >
           {formatCount(node.values[index] ?? 0)}
         </td>

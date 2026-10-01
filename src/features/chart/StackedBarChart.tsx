@@ -8,14 +8,20 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import type { ChartModel, ChartMonthDatum } from '../../domain/chartModel';
 import { getChartColor } from '../../domain/chartPalette';
 import { formatCount } from '../../domain/formatCount';
 import { BarAnchoredTooltip } from './BarAnchoredTooltip';
-import { BAR_GAP_RATIO, CHART_HEIGHT_PX, PLOT_TOP_PX, X_AXIS_HEIGHT_PX } from './chartLayout';
+import {
+  BAR_RADIUS_PX,
+  CHART_HEIGHT_PX,
+  CHART_PROPS,
+  GRID_PROPS,
+  X_AXIS_PROPS,
+  Y_AXIS_PROPS,
+} from './chartLayout';
 
-const AXIS_TICK = { fill: 'var(--color-content-secondary)', fontSize: 12 };
 /** The tooltip wrapper covers the chart; BarAnchoredTooltip positions itself inside it. */
 const TOOLTIP_WRAPPER_STYLE = { width: '100%', height: '100%', pointerEvents: 'none' } as const;
 const ACTIVE_SEGMENT = { className: 'chart-segment-active' };
@@ -36,43 +42,26 @@ export const StackedBarChart = memo(function StackedBarChart({
   animate,
   onSelectSeries,
 }: StackedBarChartProps) {
+  // Bars appear in place on first render (replacing the skeleton without a grow-in flash) and
+  // animate only when the scope changes.
+  const [initialModel] = useState(model);
+  const animateBars = animate && model !== initialModel;
+
   return (
     <ResponsiveContainer width="100%" height={CHART_HEIGHT_PX}>
       <BarChart
         data={model.months}
-        margin={{ top: PLOT_TOP_PX, right: 0, bottom: 0, left: 0 }}
-        barCategoryGap={`${BAR_GAP_RATIO * 100}%`}
+        {...CHART_PROPS}
         accessibilityLayer
         // aria-label instead of an SVG <title>, which would also show a native browser tooltip.
         aria-label={`Monthly clients chart: ${model.path.map((node) => node.name).join(' / ')}. Use the left and right arrow keys to read each month.`}
       >
-        <CartesianGrid
-          vertical={false}
-          stroke="var(--color-outline-dotted)"
-          strokeDasharray="1 6"
-          strokeLinecap="round"
-        />
-        <XAxis
-          dataKey="label"
-          axisLine={false}
-          tickLine={false}
-          tickSize={0}
-          tickMargin={15}
-          height={X_AXIS_HEIGHT_PX}
-          interval="preserveStartEnd"
-          minTickGap={12}
-          tick={AXIS_TICK}
-        />
+        <CartesianGrid {...GRID_PROPS} />
+        <XAxis {...X_AXIS_PROPS} />
         <YAxis
+          {...Y_AXIS_PROPS}
           domain={[0, model.yAxis.max]}
           ticks={model.yAxis.ticks}
-          allowDecimals={false}
-          axisLine={false}
-          tickLine={false}
-          tickSize={0}
-          tickMargin={12}
-          width={38}
-          tick={AXIS_TICK}
           tickFormatter={formatCount}
         />
         <Tooltip
@@ -86,16 +75,15 @@ export const StackedBarChart = memo(function StackedBarChart({
             )
           }
         />
-        <BarStack radius={4}>
+        <BarStack radius={BAR_RADIUS_PX}>
           {model.series.map((series, seriesIndex) => (
             <Bar
               key={series.nodeId}
               name={series.name}
               dataKey={(month: ChartMonthDatum) => month.values[seriesIndex] ?? 0}
               fill={getChartColor(series.colorIndex)}
-              className="cursor-pointer"
               activeBar={ACTIVE_SEGMENT}
-              isAnimationActive={animate}
+              isAnimationActive={animateBars}
               onClick={() => {
                 onSelectSeries(series.nodeId);
               }}

@@ -11,7 +11,7 @@ import { Panel } from '../../components/Panel';
 import type { ChartModel } from '../../domain/chartModel';
 import { PERIOD_LABEL } from '../../domain/months';
 import { ChartLegend } from './ChartLegend';
-import { CHART_HEIGHT_PX } from './chartLayout';
+import { CHART_HEIGHT_PX, CHART_PANEL_CLASS } from './chartLayout';
 import { StackedBarChart } from './StackedBarChart';
 
 export interface ChartPanelProps {
@@ -67,7 +67,7 @@ export const ChartPanel = memo(function ChartPanel({
   );
 
   return (
-    <Panel aria-labelledby={headingId} className="flex flex-col gap-4 px-4 pt-4 pb-4">
+    <Panel aria-labelledby={headingId} className={CHART_PANEL_CLASS}>
       <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
         <div className="min-w-0">
           <h2

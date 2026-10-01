@@ -69,3 +69,38 @@ test('centred error state', async ({ page }) => {
   await ready(page);
   await expect(page).toHaveScreenshot('error.png', { fullPage: true });
 });
+
+test('the dashboard replaces the skeleton without layout shift', async ({ page }) => {
+  const { promise: gate, resolve: release } = Promise.withResolvers<undefined>();
+  await page.route('**/api/clients', async (route) => {
+    await gate;
+    await route.continue();
+  });
+  await page.goto('/');
+  await expect(
+    page.locator('[data-testid="dashboard-skeleton"] .recharts-bar-rectangle'),
+  ).toHaveCount(12);
+  await ready(page);
+
+  const geometry = () =>
+    page.evaluate(() => {
+      const box = (element: Element | null) => {
+        const rect = element?.getBoundingClientRect();
+        return rect ? [rect.top, rect.left, rect.width, rect.height].map(Math.round) : null;
+      };
+      return {
+        panels: [...document.querySelectorAll('main section')].map(box),
+        header: box(document.querySelector('thead tr')),
+        rows: [...document.querySelectorAll('tbody tr')].slice(0, 4).map(box),
+        monthLabels: [...document.querySelectorAll('.recharts-xAxis-tick-labels text')].map(box),
+        gridlines: [...document.querySelectorAll('.recharts-cartesian-grid-horizontal line')]
+          .map((line) => line.getAttribute('y1'))
+          .sort(),
+      };
+    });
+
+  const skeleton = await geometry();
+  release(undefined);
+  await expect(page.getByRole('treegrid')).toBeVisible();
+  expect(await geometry()).toEqual(skeleton);
+});

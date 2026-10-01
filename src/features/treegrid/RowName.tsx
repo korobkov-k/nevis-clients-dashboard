@@ -2,6 +2,7 @@ import type { CSSProperties, MouseEvent } from 'react';
 import { ChevronIcon } from '../../components/ChevronIcon';
 import type { TreeNode } from '../../domain/clientTree';
 import { getAdviserAvatar, getInitials } from './adviserAvatars';
+import { ROW_NAME_CLASS } from './treegridLayout';
 
 interface RowNameProps {
   node: TreeNode;
@@ -17,10 +18,7 @@ interface RowNameProps {
 export function RowName({ node, expanded, onChevronClick }: RowNameProps) {
   const indent = { '--tree-depth': node.depth - 1 } as CSSProperties;
   return (
-    <span
-      className="flex min-w-0 items-center gap-2 pl-[calc(var(--tree-depth)*var(--tree-indent))]"
-      style={indent}
-    >
+    <span className={ROW_NAME_CLASS} style={indent}>
       {expanded === undefined ? (
         <span className="size-4 shrink-0" />
       ) : (
