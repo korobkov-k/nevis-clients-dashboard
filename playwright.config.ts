@@ -37,7 +37,8 @@ export default defineConfig({
   webServer: {
     command: 'node dist/server/main.js',
     url: `http://127.0.0.1:${PORT}/api/clients`,
-    env: { PORT: String(PORT) },
+    // No simulated latency: suites wait on observable state, not timers.
+    env: { PORT: String(PORT), API_DELAY_MS: '0' },
     reuseExistingServer: false,
   },
 });

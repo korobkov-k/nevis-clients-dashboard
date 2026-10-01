@@ -31,6 +31,16 @@ describe('GET /api/clients', () => {
     await app.close();
   });
 
+  it('waits for the configured response delay', async () => {
+    const app = await buildApp({ responseDelayMs: 50 });
+    const started = performance.now();
+    const response = await app.inject({ method: 'GET', url: CLIENTS_ENDPOINT });
+
+    expect(response.statusCode).toBe(200);
+    expect(performance.now() - started).toBeGreaterThanOrEqual(45);
+    await app.close();
+  });
+
   it('responds 404 for unknown API routes', async () => {
     const app = await buildApp();
     const response = await app.inject({ method: 'GET', url: '/api/unknown' });
